@@ -1,0 +1,75 @@
+{
+  "Use Advanced Parser": {
+    "prefix": ":useadvancedparser",
+    "body": "<!-- @use-advanced-parser -->",
+    "description": "Use advanced parser"
+  },
+  "Generate Storybook": {
+    "prefix": ":storybook",
+    "body": [
+      "/* eslint-disable react/function-component-definition */",
+      "import { ComponentMeta } from \"@storybook/react\";",
+      "import $1 from \"@components/elements/$1\";",
+      "",
+      "export default {",
+      "  title: \"Elements/$1\",",
+      "  component: $1,",
+      "} as ComponentMeta<typeof $1>;",
+      "export const Variants = () => (",
+      "  <div className=\"flex flex-col gap-2\">",
+      "  </div>",
+      ");"
+    ],
+    "description": "Generate Template Storybook"
+  },
+  "Generate Icon": {
+    "prefix": ":icon",
+    "body": [
+      "type Props = {",
+      " className?: string;",
+      "};",
+      "",
+      "export default function $1Icon(props: Props) {",
+      " const { className = \"\" } = props;",
+      "",
+      " return (",
+      "   <svg className={className} viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">",
+      "     $2",
+      "   </svg>",
+      " );",
+      "}"
+    ]
+  },
+  "Generate Array": {
+    "prefix": ":array",
+    "body": "Array.from(Array($1).keys()).map((_, idx) => {$2})"
+  },
+  "UseAtom": {
+    "prefix": ":useAtom",
+    "body": "const [$1, $2] = useAtom($3)"
+  },
+  "exd": {
+    "prefix": ":exd",
+    "body": "// eslint-disable-next-line react-hooks/exhaustive-deps"
+  },
+  "Generate Responsive Rendering ServersideProps": {
+    "prefix": ":render-ssr",
+    "body": [
+      "export const getServerSideProps: GetServerSideProps = async ({ req }) => {",
+      " return {",
+      "   props: {",
+      "     isMobile: isMobile(req),",
+      "   },",
+      " };",
+      "};"
+    ]
+  },
+  "Console Log": {
+    "prefix": ":logi",
+    "body": "console.log('%c ✨ $1', 'color: green; font-weight: bold;', $1)"
+  },
+  "Console Error": {
+    "prefix": ":loge",
+    "body": "console.error('%c 🔥 _logword', 'color: red; font-weight: bold;', _logword)"
+  }
+}
