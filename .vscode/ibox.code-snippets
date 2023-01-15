@@ -70,6 +70,6 @@
   },
   "Console Error": {
     "prefix": ":loge",
-    "body": "console.error('%c 🔥 _logword', 'color: red; font-weight: bold;', _logword)"
+    "body": "console.error('%c 🔥 $1', 'color: red; font-weight: bold;', $1)"
   }
 }
