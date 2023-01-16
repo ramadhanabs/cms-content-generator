@@ -12,12 +12,16 @@ import { v4 as uuidv4 } from "uuid"
 import db from "@/firebase/firebaseInit"
 import type monaco from "monaco-editor"
 import { FormBlocksValues } from "@/types/commonTypes"
+import { usePostBlocks, useRefetchBlockList } from "@/hooks/useBlocks"
+import { toast } from "react-hot-toast"
 
 const defaultHTML = `<!-- No need to write <html></html>, just write your <div></div> here :) -->`
 
 const CreateFreeCodePage = () => {
   const editorRef = useRef<any>()
   const { register, handleSubmit, reset } = useForm<FormBlocksValues>({ mode: "all" })
+  const postBlocksMutation = usePostBlocks()
+  const refetchBlockList = useRefetchBlockList()
 
   const onSubmit = async (data: FormBlocksValues) => {
     const editorValue = editorRef.current.getValue()
@@ -29,12 +33,20 @@ const CreateFreeCodePage = () => {
       content: editorValue,
     }
 
-    try {
-      const response = await db.collection("blocks").doc(id).set(payload)
-      console.log("%c ✨ success write data", "color: green; font-weight: bold;")
-    } catch (error) {
-      console.error("%c 🔥 error", "color: red; font-weight: bold;", error)
-    }
+    postBlocksMutation.mutate(
+      { id, payload },
+      {
+        onSuccess: () => {
+          toast.success("Sukses menambahkan data")
+          reset()
+          refetchBlockList()
+          editorRef.current.setValue("")
+        },
+        onError: () => {
+          toast.error("Gagal menambahkan data")
+        },
+      }
+    )
   }
 
   const handlePreview = () => {

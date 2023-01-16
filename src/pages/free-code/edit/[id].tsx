@@ -14,23 +14,15 @@ import { useForm } from "react-hook-form"
 import { FormBlocksValues } from "@/types/commonTypes"
 import { FORM_FIELD_REQUIRED } from "@/helpers/constants"
 import FormInputText from "@/components/elements/Forms/FormInputText"
+import { useGetBlockById } from "@/hooks/useBlocks"
+import { GetServerSideProps, GetServerSidePropsContext } from "next"
 
-const html = `
-  <p id="main">
-    <span class="prettify">
-      keep me and make me pretty!
-    </span>
-  </p>
-`
-
-const FreeCodePage = () => {
-  const router = useRouter()
-  const { id } = router.query
-  const stringId = typeof id === "string" ? id : ""
-
+const FreeCodePage = ({ stringId }: { stringId: string }) => {
   const editorRef = useRef<any>()
   const { setValue, register, handleSubmit, reset } = useForm<FormBlocksValues>({ mode: "all" })
-  const [html, setHTML] = useState<string | null>(null)
+  const [html, setHTML] = useState<string>('')
+  const blocksQuery = useGetBlockById(stringId)
+  const blocksData = blocksQuery.data
 
   const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
     // Auto format
@@ -41,17 +33,11 @@ const FreeCodePage = () => {
     editorRef.current = editor
   }
 
-  const fetchData = async () => {
-    const blocks = db.collection("blocks").doc(stringId)
-
-    blocks.get().then(doc => {
-      if (doc.exists) {
-        const data = doc.data() as BlocksTypes
-        setHTML(data.content)
-        setValue("identifier", data.content_identifier)
-        setValue("title", data.name)
-      }
-    })
+  const mapData = async () => {
+    if (!blocksData) return
+    setHTML(blocksData.content)
+    setValue("identifier", blocksData.content_identifier)
+    setValue("title", blocksData.name)
   }
 
   const onSubmit = async (data: FormBlocksValues) => {
@@ -78,12 +64,12 @@ const FreeCodePage = () => {
   }
 
   useEffect(() => {
-    if (stringId) {
-      fetchData()
+    if (blocksData) {
+      mapData()
     }
-  }, [stringId])
+  }, [blocksData])
 
-  if (!html) return <p>Loading...</p>
+  if (blocksQuery.isLoading) return <p>Loading...</p>
   return (
     <>
       <MetaData title="Free Code" />
@@ -91,7 +77,11 @@ const FreeCodePage = () => {
         <ContainerDesktop>
           <div className="flex justify-between">
             <div className="flex items-center">
-                <IconButton icon={<EyeIcon className="w-6 h-6" />} ariaLabel="" onClick={handlePreview} />
+              <IconButton
+                icon={<EyeIcon className="w-6 h-6" />}
+                ariaLabel=""
+                onClick={handlePreview}
+              />
               <h1 className="text-xl font-bold ml-2">Free Code</h1>
             </div>
             <Button className="ml-2" type="submit">
@@ -130,6 +120,21 @@ const FreeCodePage = () => {
       </form>
     </>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const {
+    query: { id },
+  } = context
+  const stringId = typeof id === "string" ? id : ""
+
+  return {
+    props: {
+      stringId,
+    },
+  }
 }
 
 export default FreeCodePage

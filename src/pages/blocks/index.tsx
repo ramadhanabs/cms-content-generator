@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import db from "@/firebase/firebaseInit"
 import ContainerDesktop from "@/components/elements/Container/ContainerDesktop"
 import Link from "next/link"
@@ -7,34 +7,31 @@ import { useRouter } from "next/router"
 import IconButton from "@/components/elements/IconButton"
 import { EyeIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline"
 import MetaData from "@/components/elements/MetaData"
+import { useGetBlockList, useDeleteBlocks } from "@/hooks/useBlocks"
+import { toast } from "react-hot-toast"
 
 const BlocksPage = () => {
   const router = useRouter()
-  const [list, setList] = useState<any[]>([])
 
-  const fetchData = async () => {
-    const blocks = db.collection("blocks")
-    const snapshot = await blocks.get()
+  const blockListQuery = useGetBlockList()
+  const deleteBlocksMutation = useDeleteBlocks()
 
-    const data = snapshot.docs.map(item => item.data())
-
-    setList(data)
-  }
+  const list = useMemo(() => {
+    if (!blockListQuery.data) return []
+    return blockListQuery.data
+  }, [blockListQuery])
 
   const handleDelete = (id: string) => {
-    console.log("%c ✨ id", "color: green; font-weight: bold;", id)
-    db.collection("blocks")
-      .doc(id)
-      .delete()
-      .then(() => {
-        console.log("%c ✨ Success Delete Data", "color: green; font-weight: bold;")
-      })
-      .catch(error => console.error("%c 🔥 error", "color: red; font-weight: bold;", error))
+    deleteBlocksMutation.mutate(id, {
+      onSuccess: () => {
+        toast.success("Berhasil menghapus data")
+        blockListQuery.refetch()
+      },
+      onError: () => {
+        toast.error("Gagal menghapus data")
+      },
+    })
   }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
 
   return (
     <>
@@ -67,7 +64,7 @@ const BlocksPage = () => {
             </thead>
             <tbody className="bg-gray-50">
               {list.length > 0 ? (
-                list.map((item, index) => (
+                list?.map((item, index) => (
                   <tr
                     className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                     key={index + 1}
@@ -85,7 +82,7 @@ const BlocksPage = () => {
                       <Link href={`/free-code/edit/${item.id}`}>
                         <IconButton icon={<PencilSquareIcon className="w-5 h-5" />} ariaLabel="" />
                       </Link>
-                      <Link href={`/preview/${item.id}`}>
+                      <Link href={`/preview/${item.id}`} target="_blank" >
                         <IconButton icon={<EyeIcon className="w-5 h-5" />} ariaLabel="" />
                       </Link>
                       <IconButton

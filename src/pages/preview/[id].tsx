@@ -8,12 +8,11 @@ import { GetServerSideProps, GetServerSidePropsContext } from "next"
 const PreviewByIdPage = ({ block }) => {
   const router = useRouter()
   const { id } = router.query
-  const stringId = typeof id === "string" ? id : ""
 
   if (!block) return <p>Loading..</p>
   return (
     <>
-      <MetaData title="Preview Blocks" />
+      <MetaData title="Preview Blocks" isUsingCDNTailwind />
       <div>{parse(block)}</div>
     </>
   )

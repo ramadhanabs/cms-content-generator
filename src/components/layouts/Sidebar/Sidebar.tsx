@@ -53,11 +53,8 @@ const Sidebar = () => {
         <Link href="/blocks" className="my-3">
           <MenuItem label="Blocks" iconMenu={<CubeIcon />} identifier="blocks" />
         </Link>
-        <Link href="/free-code" className="my-3">
-          <MenuItem label="Free Code" iconMenu={<CubeIcon />} identifier="freeCode" />
-        </Link>
-        <Link href="/template" className="my-3">
-          <MenuItem label="Template" iconMenu={<FilmIcon />} identifier="template" />
+        <Link href="/page" className="my-3">
+          <MenuItem label="Pages" iconMenu={<FilmIcon />} identifier="freeCode" />
         </Link>
       </div>
     </aside>
